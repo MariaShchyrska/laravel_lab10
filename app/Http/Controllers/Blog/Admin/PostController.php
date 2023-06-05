@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Blog\Admin;
 
+use App\Jobs\BlogPostAfterCreateJob;
+use App\Jobs\BlogPostAfterDeleteJob;
 use App\Models\BlogPost;
 use App\Http\Requests\BlogPostCreateRequest;
 use App\Repositories\BlogPostRepository;
@@ -65,6 +67,8 @@ class PostController extends BaseController
         $item = (new BlogPost())->create($data); //створюємо об'єкт і додаємо в БД
 
         if ($item) {
+            $job = new BlogPostAfterCreateJob($item);
+            $this->dispatch($job);
             return redirect()
                 ->route('blog.admin.posts.edit', [$item->id])
                 ->with(['success' => 'Успішно збережено']);
@@ -140,18 +144,19 @@ class PostController extends BaseController
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
-    {
-        $result = BlogPost::destroy($id); //софт деліт, запис лишається
+{
+    $result = BlogPost::destroy($id); //софт деліт, запис лишається
 
-        //$result = BlogPost::find($id)->forceDelete(); //повне видалення з БД
+    //$result = BlogPost::find($id)->forceDelete(); //повне видалення з БД
 
         if ($result) {
-            return redirect()
-                ->route('blog.admin.posts.index')
-                ->with(['success' => "Запис id[$id] видалено"]);
+            BlogPostAfterDeleteJob::dispatch($id)->delay(20);
+        return redirect()
+            ->route('blog.admin.posts.index')
+            ->with(['success' => "Запис id[$id] видалено"]);
         } else {
-            return back()
-                ->withErrors(['msg' => 'Помилка видалення']);
+        return back()
+            ->withErrors(['msg' => 'Помилка видалення']);
         }
     }
 }

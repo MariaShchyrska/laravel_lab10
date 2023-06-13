@@ -48,7 +48,8 @@ class PostController extends BaseController
      */
     public function show($id)
     {
-        //
+        $post = BlogPost::findOrFail($id);
+        return view('blog.posts.show', compact('post'));
     }
 
     /**

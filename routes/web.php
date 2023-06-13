@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RestTestController;
 use App\Http\Controllers\DiggingDeeperController;
-
+use App\Http\Controllers\Blog\PostController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -50,6 +50,8 @@ Route::group($groupData, function () {
         ->except(['show'])                               //не робити маршрут для метода show
         ->names('blog.admin.posts');
 });
+
+Route::get('/post/{id}', [PostController::class, 'show'])->name('post.show');
 
 Route::get('/collections', [DiggingDeeperController::class, 'collections']);
 Route::group(['prefix' => 'digging_deeper'], function () {

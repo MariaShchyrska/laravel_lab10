@@ -21,6 +21,7 @@ class CategoryController extends BaseController
     {
         parent::__construct();
         $this->blogCategoryRepository = app(BlogCategoryRepository::class);
+        $this->middleware('admin');
     }
     /**
      * Display a listing of the resource.
